@@ -4,9 +4,13 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException {
 
-        Thread thread = new Thread(() -> System.out.println("we are in a new thread " + Thread.currentThread().getName()));
+        Thread thread = new Thread(() -> {
+            System.out.println("we are in a new thread " + Thread.currentThread().getName());
+            System.out.println(Thread.currentThread().getName() + " priority is " + Thread.currentThread().getPriority());
+        });
 
         thread.setName("New Worker Thread");
+        thread.setPriority(Thread.MAX_PRIORITY);
 
         System.out.println("we are in thread " + Thread.currentThread().getName() + " before starting a new thread.");
 
