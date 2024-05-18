@@ -53,11 +53,11 @@ public class SyncApp {
 
         private int items;
 
-        public void increment() {
+        public synchronized void increment() {
             items++;
         }
 
-        public void decrement() {
+        public synchronized void decrement() {
             items--;
         }
 
