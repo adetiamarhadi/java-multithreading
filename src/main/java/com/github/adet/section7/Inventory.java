@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.NavigableMap;
 import java.util.Random;
 import java.util.TreeMap;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Inventory {
 
@@ -71,11 +72,13 @@ public class Inventory {
     public static class InventoryDatabase {
 
         private TreeMap<Integer, Integer> priceToCountMap = new TreeMap<>();
-        private ReentrantLock lock = new ReentrantLock();
+        private ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
+        private Lock readLock = rwLock.readLock();
+        private Lock writeLock = rwLock.writeLock();
 
         public int getNumberOfItemsInPriceRange(int lowerBound, int upperBound) {
 
-            lock.lock();
+            readLock.lock();
             try {
                 Integer fromKey = priceToCountMap.ceilingKey(lowerBound);
                 Integer toKey = priceToCountMap.floorKey(upperBound);
@@ -92,13 +95,13 @@ public class Inventory {
 
                 return sum;
             } finally {
-                lock.unlock();
+                readLock.unlock();
             }
         }
 
         public void addItem(int price) {
 
-            lock.lock();
+            writeLock.lock();
             try {
                 Integer numberOfItemsForPrice = priceToCountMap.get(price);
                 if (numberOfItemsForPrice == null) {
@@ -107,13 +110,13 @@ public class Inventory {
                     priceToCountMap.put(price, numberOfItemsForPrice + 1);
                 }
             } finally {
-                lock.unlock();
+                writeLock.unlock();
             }
         }
 
         public void removeItem(int price) {
 
-            lock.lock();
+            writeLock.lock();
             try {
                 Integer numberOfItemsForPrice = priceToCountMap.get(price);
                 if (numberOfItemsForPrice == null || numberOfItemsForPrice == 1) {
@@ -122,7 +125,7 @@ public class Inventory {
                     priceToCountMap.put(price, numberOfItemsForPrice - 1);
                 }
             } finally {
-                lock.unlock();
+                writeLock.unlock();
             }
         }
     }
