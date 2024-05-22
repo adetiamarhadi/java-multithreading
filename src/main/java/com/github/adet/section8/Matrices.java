@@ -8,7 +8,6 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.StringJoiner;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Matrices {
 
@@ -138,18 +137,27 @@ public class Matrices {
 
     private static class ThreadSafeQueue {
 
+        private static final int CAPACITY = 5;
+
         private Queue<MatricesPair> queue = new LinkedList<>();
 
         private boolean isEmpty = true;
         private boolean isTerminate = false;
 
         public synchronized void add(MatricesPair matricesPair) {
+            while (queue.size() == CAPACITY) {
+                try {
+                    wait();
+                } catch (InterruptedException ignored) {
+                }
+            }
             queue.add(matricesPair);
             isEmpty = false;
             notify();
         }
 
         public synchronized MatricesPair remove() {
+            MatricesPair matricesPair = null;
             while (isEmpty && !isTerminate) {
                 try {
                     wait();
@@ -167,7 +175,13 @@ public class Matrices {
 
             System.out.println("Queue size " + queue.size());
 
-            return queue.remove();
+            matricesPair = queue.remove();
+
+            if (queue.size() == CAPACITY - 1) {
+                notifyAll();
+            }
+
+            return matricesPair;
         }
 
         public synchronized void terminate() {
