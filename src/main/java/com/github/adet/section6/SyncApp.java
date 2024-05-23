@@ -1,5 +1,7 @@
 package com.github.adet.section6;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class SyncApp {
 
     public static void main(String[] args) throws InterruptedException {
@@ -51,24 +53,18 @@ public class SyncApp {
 
     private static class InventoryCounter {
 
-        private int items;
-
-        Object lock = new Object();
+        private AtomicInteger items = new AtomicInteger(0);
 
         public void increment() {
-            synchronized (lock) {
-                items++;
-            }
+            items.incrementAndGet();
         }
 
         public void decrement() {
-            synchronized (lock) {
-                items--;
-            }
+            items.decrementAndGet();
         }
 
         public int getItems() {
-            return items;
+            return items.get();
         }
     }
 }
