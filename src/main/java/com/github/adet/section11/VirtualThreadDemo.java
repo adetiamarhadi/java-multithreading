@@ -6,7 +6,7 @@ public class VirtualThreadDemo {
 
         Runnable runnable = () -> System.out.println("Inside thread: " + Thread.currentThread());
 
-        Thread platformThread = Thread.ofPlatform().unstarted(runnable);
+        Thread platformThread = Thread.ofVirtual().unstarted(runnable);
 
         platformThread.start();
         platformThread.join();
